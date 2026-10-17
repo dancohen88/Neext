@@ -41,6 +41,8 @@ There's no application code yet. Record build, test, single-test and deploy comm
 
 - `make`: lists the task-runner targets. The [Makefile](Makefile) is the entry point for routine commands, so add new ones there.
 - `make cluster-up` / `make cluster-down` / `make cluster-status`: the local k3d cluster `neext`, defined in [platform/k3d/cluster.yaml](platform/k3d/cluster.yaml). It has 1 control-plane node and 2 workers, `localhost:8080` goes to Traefik, and the registry is at `localhost:5005` (`neext-registry:5000` from inside the cluster).
+- `make lint`: yamllint over all YAML (rules in `.yamllint.yaml`), then kubeconform `-strict` over `platform/*.yaml` against the Kubernetes `K8S_VERSION` schemas. CI's required `lint` check runs exactly this, so run it before pushing. Keep `K8S_VERSION` in the Makefile in step with the k3s image in `platform/k3d/cluster.yaml`.
+- CI: `.github/workflows/ci.yml`. Pin Actions to full commit SHAs with a `# vX.Y.Z` comment, keep `permissions` minimal, and checksum any downloaded binaries.
 - `make smoke`: checks the request path from `localhost:8080` through Traefik to a pod, then cleans up.
 - Always pass `--context k3d-neext` to kubectl, as the Makefile does. Never rely on the current context.
 - `brew bundle`: install or update the toolchain from the [Brewfile](Brewfile). `brew bundle check --verbose` lists anything missing.

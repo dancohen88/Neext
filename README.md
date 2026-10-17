@@ -1,5 +1,7 @@
 # Neext
 
+[![CI](https://github.com/dancohen88/Neext/actions/workflows/ci.yml/badge.svg)](https://github.com/dancohen88/Neext/actions/workflows/ci.yml)
+
 **Always one e ahead.** Neext is a parody high-street shop, built to be scaled, throttled and broken on purpose.
 
 It's a learning project. It builds a production-style system end to end and then puts it under realistic pressure:
@@ -12,7 +14,7 @@ Everything uses free tools that companies run in production. Dev runs on a lapto
 
 ## Status
 
-**Layer 0 · Foundations** is in progress. Track it on the [project board](https://github.com/users/dancohen88/projects/1) or under [milestones](https://github.com/dancohen88/Neext/milestones).
+**Layer 0 · Foundations** is complete. **Layer 1 · First slice** is next. Track it on the [project board](https://github.com/users/dancohen88/projects/1) or under [milestones](https://github.com/dancohen88/Neext/milestones).
 
 ## Getting started
 
