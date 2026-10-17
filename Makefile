@@ -8,10 +8,10 @@ KUBECTL := kubectl --context k3d-$(CLUSTER)
 # Kubernetes manifests to validate, and the version whose schemas they're checked
 # against. Keep K8S_VERSION in step with the k3s image in platform/k3d/cluster.yaml.
 K8S_MANIFESTS := $(wildcard platform/*.yaml)
-K8S_VERSION := 1.35.5
+K8S_VERSION := 1.35.9
 
 .DEFAULT_GOAL := help
-.PHONY: help lint cluster-up cluster-down cluster-status smoke
+.PHONY: help lint scan cluster-up cluster-down cluster-status smoke
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -19,6 +19,15 @@ help: ## List the available targets
 lint: ## Check YAML formatting, then validate Kubernetes manifests against the API schema
 	yamllint --strict .
 	kubeconform -strict -summary -kubernetes-version $(K8S_VERSION) $(K8S_MANIFESTS)
+
+scan: ## CVE counts (Docker Scout) for every image the dev cluster runs, incl. inside k3s (slow: ~10+ min)
+	@echo "  image                                                    critical/high/medium/low"
+	@for img in $$(docker ps --filter name=k3d-$(CLUSTER) --filter name=neext-registry --format '{{.Image}}' | sort -u) \
+	            $$($(KUBECTL) get pods -A -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.image}{"\n"}{end}{end}' | sort -u); do \
+	  printf "  %-56s " "$$img"; \
+	  r=$$(docker scout quickview "$$img" 2>/dev/null | grep -E '^\s*Target' | grep -oE '[0-9]+C +[0-9]+H +[0-9]+M +[0-9]+L' | head -1); \
+	  echo "$${r:-? scan failed, try again}"; \
+	done
 
 cluster-up: ## Create the local dev cluster (skips creation if it already exists)
 	@k3d cluster list $(CLUSTER) >/dev/null 2>&1 || k3d cluster create --config platform/k3d/cluster.yaml

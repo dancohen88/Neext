@@ -90,7 +90,18 @@ TLS and Keycloak arrive in Layer 3. mTLS between services arrives in Layer 8. Co
 ## 018 — Scaling scope (2026-10-14)
 Pod autoscaling (HPA, KEDA) is real. Node autoscaling is simulated by the control centre adding and removing k3d nodes, because fixed zero-cost capacity can't grow. In prod, experiments lean towards throttling and load shedding rather than scaling out.
 
+## 019 — Vulnerability management (2026-10-17)
+1. **Reduce exposure first.** Every port the dev cluster publishes binds to `127.0.0.1`. Prod admin access is over Tailscale only (Decision 012).
+2. **Fix what we control.** Take patch releases promptly, and replace unmaintained images.
+3. **Record what we can't fix yet.** When the fix depends on an upstream release, add it to [vulnerabilities.md](vulnerabilities.md) with a re-check trigger.
+4. **Judge risk by reachability**, not raw severity counts.
+5. **Scan our own images in CI from Layer 1**, with the scanner chosen at the Layer 1 kickoff.
+
+**Why:** Docker Scout reported 66 critical CVEs across the dev images. Triage found the biggest real risk wasn't any CVE: port 8080 was published on every network interface. Most of the counts trace to a few libraries compiled into upstream binaries, which only the upstream maintainers can rebuild.
+**Consequences:** `make scan` re-checks every image, including those inside k3s that Docker Desktop doesn't show. Run it at each layer kickoff and when upstream releases.
+
 ## Deferred to layer kickoffs
+- Layer 1: image scanner for CI (Docker Scout, Trivy or Grype).
 - Layer 3: gateway product, domain name.
 - Layer 4: event streaming distribution.
 - Layer 5: observability details, Grafana Cloud setup.
