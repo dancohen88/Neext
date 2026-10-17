@@ -17,6 +17,7 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
 - The PR description follows `.github/pull_request_template.md`. It's the learning write-up, and it starts with `Closes #<issue>`.
 - PRs are squash-merged, so the PR title becomes the commit on `main`. Titles are Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:` …).
 - Each layer gets a journal page in `docs/learning/`, updated by each milestone's PR.
+- Each layer also gets a task-oriented field guide in `docs/field-guide/`, written when the layer closes. It covers how to operate what the layer built, and troubleshooting by symptom for problems actually hit.
 
 ## Constraints that shape every change
 
