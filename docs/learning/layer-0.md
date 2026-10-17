@@ -115,6 +115,31 @@ The aim was a pipeline that checks every PR automatically, and a rule that won't
 - *`git revert` vs `git reset`*: undoing by adding history vs rewriting it.
 - *Dependabot version updates*.
 
+## M0.5 · Triaging container CVEs
+
+Docker Desktop's image list showed **66 critical and about 370 high CVEs** across seven images. The aim was to work out which mattered, fix what we could, and record the rest honestly. The full result is in the [vulnerability register](../vulnerabilities.md).
+
+**How the triage went**
+1. **Break the counts down by package.** Nearly all of them came from Go libraries compiled into upstream programs (k3s, the registry, k3d's proxy), not from anything we wrote or configured.
+2. **Look for newer releases.**
+   - k3s had 4 newer **patch** releases on the same 1.35 line. These are mostly fixes, so they're low-risk to take.
+   - k3d's default registry image, `registry:2`, had been superseded by `registry:3`.
+   - k3d itself had no newer release.
+3. **Check exposure.** The most important finding was **not a CVE**: port 8080, the cluster's front door, was published on **every network interface**. Anyone on the same Wi-Fi could reach it, and it's served by k3d-proxy, the most vulnerable image. A one-word fix (`127.0.0.1:8080:80`) took it off the network. That was verified by trying to reach it through the Mac's network address.
+4. **Fix, measure, record.**
+   - k3s criticals went from 16 to 13 and the registry's from 6 to 3, and the demo leftovers were deleted.
+   - The rest is recorded with a "re-check when" trigger, because the fixes need upstream releases.
+5. **Find the blind spot.** Images running *inside* k3s (Traefik, CoreDNS, …) live in k3s's own image store, so Docker Desktop never shows them. They carried another 27 criticals. `make scan` now covers both stores.
+
+**Concepts to look up**
+- *CVE* and *CVSS* severity scores, and why a count isn't a risk measure.
+- *Reachability and exposure*: a vulnerability nobody can reach matters far less.
+- *Attack surface reduction*, and binding to `127.0.0.1` vs `0.0.0.0`.
+- *Semantic versioning*: patch vs minor vs major, and why patches are safe to take promptly.
+- *Software composition analysis (SCA)*: how scanners find libraries inside compiled binaries.
+- *Risk acceptance* and a *vulnerability register*: recording a decision not to fix yet, with a reason and a trigger.
+- *Docker Scout* (Docker Desktop's scanner); alternatives include Trivy and Grype.
+
 ## Layer 0 wrap-up
 
 Layer 0 is done:

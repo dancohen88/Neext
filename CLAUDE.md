@@ -25,6 +25,8 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
   - Dev shares a Docker Desktop VM capped at 14 GB.
   - Prod is one Oracle ARM VM with 2 vCPUs and 12 GB. CPU is the scarcer resource.
   - Every workload needs explicit resource requests and limits. JVM flags are tuned to each container's limit.
+- **Host ports bind to `127.0.0.1`, never `0.0.0.0`.** This covers k3d port mappings and anything else published from the Mac.
+- **Vulnerabilities follow Decision 019.** Run `make scan` at each layer kickoff, fix what we control, and record accepted CVEs in [docs/vulnerabilities.md](docs/vulnerabilities.md) with a re-check trigger.
 - **arm64 images only.** Dev (Apple Silicon) and prod (Oracle Ampere) are both ARM.
 - **Public repo.** No secrets, tokens or kubeconfigs in git. Secrets go in as Sealed Secrets.
 - **Dev namespaces are split.**

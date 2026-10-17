@@ -5,8 +5,9 @@ kind: Simple
 metadata:
   name: neext
 
-# Pinned to match prod's k3s version (dev/prod parity).
-image: rancher/k3s:v1.35.5-k3s1
+# Pinned to match prod's k3s version (dev/prod parity). Take patch releases promptly
+# (security fixes). Keep K8S_VERSION in the Makefile in step.
+image: rancher/k3s:v1.35.9-k3s1
 
 # 1 control-plane node + 2 workers, so scheduling, node drains and
 # simulated node scaling behave like a real multi-node cluster.
@@ -19,7 +20,8 @@ kubeAPI:
 
 ports:
   # http://localhost:8080 → k3d's load balancer → Traefik (k3s's built-in ingress) on port 80.
-  - port: 8080:80
+  # Bound to 127.0.0.1 so only this Mac can reach it, not other devices on the network.
+  - port: 127.0.0.1:8080:80
     nodeFilters:
       - loadbalancer
 
@@ -30,6 +32,7 @@ registries:
     name: neext-registry
     host: "127.0.0.1"
     hostPort: "5005"
+    image: registry:3.1.2   # k3d's default is registry:2, unmaintained and full of CVEs
 
 options:
   kubeconfig:
