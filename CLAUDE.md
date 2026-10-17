@@ -37,4 +37,7 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
 
 ## Commands
 
-There's no code yet (Layer 0 hasn't been scaffolded). Record build, test, single-test and deploy commands here as they're created.
+There's no application code yet. Record build, test, single-test and deploy commands here as they're created.
+
+- `brew bundle`: install or update the toolchain from the [Brewfile](Brewfile). `brew bundle check --verbose` lists anything missing.
+- Java must be Temurin 25: `JAVA_HOME=$(/usr/libexec/java_home -v 25)`, set in `~/.zshrc`. Homebrew's Maven otherwise silently uses Homebrew's newer `openjdk`. Claude's shell may not have it, because it can be set up before `~/.zshrc` changes. Before any Java or Maven command, check that `mvn -v` reports Java 25. If it doesn't, export `JAVA_HOME` in the same command, or run it via `zsh -ic '…'`.

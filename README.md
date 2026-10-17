@@ -14,6 +14,19 @@ Everything uses free tools that companies run in production. Dev runs on a lapto
 
 **Layer 0 · Foundations** is in progress. Track it on the [project board](https://github.com/users/dancohen88/projects/1) or under [milestones](https://github.com/dancohen88/Neext/milestones).
 
+## Getting started
+
+You'll need macOS on Apple Silicon with [Homebrew](https://brew.sh) installed.
+
+1. **Install the toolchain.** Run `brew bundle` from the repo root. The [Brewfile](Brewfile) lists every tool. The installers ask for your password.
+2. **Set up Docker Desktop.** Open it once and accept the terms. In **Settings → Resources**, set **Memory to 14 GB**. Leave its built-in Kubernetes **off**, because k3d provides the cluster.
+3. **Pin Java to 25 (LTS).** Add this line to `~/.zshrc`, then open a new terminal:
+   ```sh
+   export JAVA_HOME=$(/usr/libexec/java_home -v 25)
+   ```
+   Homebrew's Maven otherwise uses its own, newer JDK.
+4. **Check the setup.** `brew bundle check` should report everything installed, and `mvn -v` should show Java version 25.
+
 ## Docs
 
 | | |
