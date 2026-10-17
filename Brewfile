@@ -15,3 +15,7 @@ brew "maven"
 
 # Load testing
 brew "k6"
+
+# Checks (same versions CI pins in .github/workflows/ci.yml). Run with: make lint
+brew "yamllint"         # YAML formatting
+brew "kubeconform"      # Kubernetes manifests against the API schema
