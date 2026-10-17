@@ -1,0 +1,12 @@
+# Dependabot opens PRs when something we depend on has a new release.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci   # Conventional Commit type, so Dependabot's PR titles follow the house rules
+    groups:
+      github-actions:   # one PR for all Actions updates, not one each
+        patterns: ["*"]

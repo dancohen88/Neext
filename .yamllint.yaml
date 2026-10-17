@@ -1,0 +1,20 @@
+# yamllint rules for the whole repo. Run with `make lint`.
+extends: default
+
+rules:
+  # Kubernetes manifests don't need a leading `---`.
+  document-start: disable
+  line-length:
+    max: 120
+  # Allow both `{app: smoke}` and `{ app: smoke }`.
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  comments:
+    min-spaces-from-content: 1
+  # Only `true`/`false` count as booleans, which catches the "Norway problem"
+  # (`no` or `on` silently read as false/true). Keys are exempt, because
+  # GitHub Actions workflows use an `on:` key.
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false

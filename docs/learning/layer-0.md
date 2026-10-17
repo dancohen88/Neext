@@ -87,4 +87,40 @@ The aim was a real multi-node Kubernetes cluster on the laptop, defined in the r
 
 ## M0.4 · CI skeleton
 
-_To come._
+The aim was a pipeline that checks every PR automatically, and a rule that won't let a failing one merge.
+
+**What we set up**
+- [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml): a `lint` job on GitHub's free arm64 runner. It runs on every PR to `main` and every push to `main`, in about 7–9 seconds.
+- `make lint` runs two different kinds of check. CI runs exactly the same command, so a green `make lint` on your Mac means green in CI.
+  - **Format** (`yamllint`, with rules in [`.yamllint.yaml`](../../.yamllint.yaml)): is every YAML file well formed and consistently styled?
+  - **Schema** (`kubeconform`, against the Kubernetes 1.35.5 schemas): is every manifest a valid Kubernetes object?
+- The `main` ruleset now requires the `lint` check, pinned to GitHub Actions so no other app can report a fake green.
+- [`.github/dependabot.yml`](../../.github/dependabot.yml): a weekly PR when the Actions we use have new versions, titled `ci: …` to follow the house rules.
+
+**The demo**
+1. A deliberate typo, `replica: 1` instead of `replicas: 1`, was pushed to the PR. It's perfectly valid YAML, so yamllint passed it. kubeconform rejected it: `additional properties 'replica' not allowed`. CI went red in 6 seconds and the PR's merge state became `BLOCKED`.
+2. A `git revert` commit undid the typo. CI went green and the merge state became `CLEAN`. Reverting adds a new commit rather than rewriting history, so the shared branch never needed a force-push. Squash merging folds all of it into one commit on `main`.
+
+**Supply-chain hygiene in the workflow**
+- **Actions are pinned to commit SHAs** (`actions/checkout@3d3c42e…`), not tags like `v7`. A tag can be moved to point at different code; a commit SHA can't. Dependabot understands SHA pins and keeps them current.
+- **Downloads are checksum-verified.** kubeconform's tarball is checked against the release's `CHECKSUMS` file before it runs.
+- **Least privilege.** The workflow's token can only read the repo (`permissions: contents: read`), and checkout doesn't leave credentials behind (`persist-credentials: false`).
+
+**Concepts to look up**
+- *Continuous integration (CI)*: every change is checked automatically before it lands.
+- *Required status checks*, and the *strict* "branches must be up to date" option (left off here; it matters on busy team repos).
+- *Linting vs schema validation*: format vs meaning.
+- *"Shift left"*: catching mistakes as early, cheaply and close to the author as possible.
+- *Software supply-chain security*: pinning by SHA, checksums, least-privilege tokens. Also look up the *tj-actions* compromise (2025), where a moved tag delivered malicious code.
+- *`git revert` vs `git reset`*: undoing by adding history vs rewriting it.
+- *Dependabot version updates*.
+
+## Layer 0 wrap-up
+
+Layer 0 is done:
+- `main` is protected and changes only through checked, squash-merged PRs.
+- The toolchain is one `brew bundle` away.
+- A three-node Kubernetes cluster comes up in about 45 seconds and idles at about 1.1 GB.
+- CI checks every change in seconds.
+
+None of the shop exists yet. That starts in Layer 1.
