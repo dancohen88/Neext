@@ -12,9 +12,11 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
 ## Ways of working
 
 - Claude writes the code and explains each step: the concept, the trade-off, and the name of the pattern so the user can look it up.
-- One branch and PR per milestone (about an hour, ending in a demo). The PR description is a learning write-up. **The user reviews and merges;** never push to `main`.
-- Each layer gets a journal page in `docs/learning/`.
-- Conventional Commits (`feat:`, `fix:`, …).
+- Each milestone (about an hour, ending in a demo) has a GitHub Issue under its layer's Milestone and on the Projects board (https://github.com/users/dancohen88/projects/1).
+- The work happens on a branch named `type/m<layer>.<n>-short-name` and arrives as a PR. **The user reviews and merges;** a ruleset blocks direct pushes to `main`.
+- The PR description follows `.github/pull_request_template.md`. It's the learning write-up, and it starts with `Closes #<issue>`.
+- PRs are squash-merged, so the PR title becomes the commit on `main`. Titles are Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:` …).
+- Each layer gets a journal page in `docs/learning/`, updated by each milestone's PR.
 
 ## Constraints that shape every change
 
