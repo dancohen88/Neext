@@ -39,5 +39,9 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
 
 There's no application code yet. Record build, test, single-test and deploy commands here as they're created.
 
+- `make`: lists the task-runner targets. The [Makefile](Makefile) is the entry point for routine commands, so add new ones there.
+- `make cluster-up` / `make cluster-down` / `make cluster-status`: the local k3d cluster `neext`, defined in [platform/k3d/cluster.yaml](platform/k3d/cluster.yaml). It has 1 control-plane node and 2 workers, `localhost:8080` goes to Traefik, and the registry is at `localhost:5005` (`neext-registry:5000` from inside the cluster).
+- `make smoke`: checks the request path from `localhost:8080` through Traefik to a pod, then cleans up.
+- Always pass `--context k3d-neext` to kubectl, as the Makefile does. Never rely on the current context.
 - `brew bundle`: install or update the toolchain from the [Brewfile](Brewfile). `brew bundle check --verbose` lists anything missing.
 - Java must be Temurin 25: `JAVA_HOME=$(/usr/libexec/java_home -v 25)`, set in `~/.zshrc`. Homebrew's Maven otherwise silently uses Homebrew's newer `openjdk`. Claude's shell may not have it, because it can be set up before `~/.zshrc` changes. Before any Java or Maven command, check that `mvn -v` reports Java 25. If it doesn't, export `JAVA_HOME` in the same command, or run it via `zsh -ic '…'`.

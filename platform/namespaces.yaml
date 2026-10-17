@@ -1,0 +1,17 @@
+# The two dev namespaces (Decision 008). Tilt and Argo CD must never manage the same one:
+# Argo CD reverts anything that isn't in git, which would undo Tilt's deploys.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neext-local
+  labels:
+    app.kubernetes.io/part-of: neext
+    neext.dev/managed-by: tilt
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neext-dev
+  labels:
+    app.kubernetes.io/part-of: neext
+    neext.dev/managed-by: argocd
