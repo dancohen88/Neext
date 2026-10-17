@@ -53,7 +53,37 @@ The aim was to install the whole toolchain from a file, so any Mac can be set up
 
 ## M0.3 · Local dev cluster
 
-_To come._
+The aim was a real multi-node Kubernetes cluster on the laptop, defined in the repo and created with one command.
+
+**What we set up**
+- [`platform/k3d/cluster.yaml`](../../platform/k3d/cluster.yaml) defines the cluster:
+  - 1 control-plane node and 2 worker nodes, each a Docker container
+  - k3s pinned to v1.35.5, the same version prod will run
+  - `localhost:8080` mapped to Traefik
+  - a local image registry for Tilt
+- [`platform/namespaces.yaml`](../../platform/namespaces.yaml): `neext-local` (Tilt) and `neext-dev` (Argo CD, from Layer 2).
+- A [`Makefile`](../../Makefile) as the repo's task runner. `make` lists the targets.
+- `make smoke` proves the whole ingress path works (`localhost:8080` → k3d load balancer → Traefik → Service → Pod), then removes itself.
+
+**Numbers worth remembering**
+- Creating the cluster takes about 45 seconds.
+- At idle it uses about 1.1 GB, three-quarters of it the control-plane node.
+
+**Problems found and fixed**
+- **Port 5000 is taken on macOS**, by ControlCenter's AirPlay Receiver. Most local-registry tutorials use 5000, so the registry listens on **5005** on the Mac. Inside the cluster it's still `neext-registry:5000`.
+- **Traefik isn't ready the moment the cluster is.** k3s installs it with a Helm job after startup, so the smoke test waits for its pod to be ready rather than assuming.
+
+**Concepts to look up**
+- *Kubernetes in Docker* (k3d, kind): nodes as containers, and why that's good enough for dev.
+- *Control plane vs worker nodes*.
+- *Ingress and ingress controllers*: how an outside request finds a Service. Traefik is k3s's built-in controller.
+- *Deployment → ReplicaSet → Pod, and Service*: the four objects in the smoke test.
+- *Readiness probes*: Kubernetes sends traffic to a pod only once its `/health` check passes.
+- *Resource requests vs limits*: even the smoke pod declares them (a CLAUDE.md rule).
+- *kubeconfig contexts*: why the Makefile always passes `--context k3d-neext`. Once prod exists, the wrong current context could point a command at prod.
+- *Idempotency*: running `make cluster-up` twice is safe.
+- *Smoke tests*: a quick end-to-end check that the basics work, before deeper testing.
+- *Self-documenting Makefile*: the `## comment` pattern behind `make help`.
 
 ## M0.4 · CI skeleton
 

@@ -1,0 +1,54 @@
+# Smoke test: proves a request can travel localhost:8080 → Traefik → Service → Pod.
+# Run with `make smoke`, which applies this, checks the response, and removes it.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smoke
+  namespace: neext-local
+  labels: { app: smoke }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: smoke }
+  template:
+    metadata:
+      labels: { app: smoke }
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami:v1.12.0   # echoes back the request it received
+          ports:
+            - containerPort: 80
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 32Mi }
+          readinessProbe:
+            httpGet: { path: /health, port: 80 }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smoke
+  namespace: neext-local
+spec:
+  selector: { app: smoke }
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smoke
+  namespace: neext-local
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: smoke
+                port: { number: 80 }

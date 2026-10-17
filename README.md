@@ -26,6 +26,7 @@ You'll need macOS on Apple Silicon with [Homebrew](https://brew.sh) installed.
    ```
    Homebrew's Maven otherwise uses its own, newer JDK.
 4. **Check the setup.** `brew bundle check` should report everything installed, and `mvn -v` should show Java version 25.
+5. **Start the dev cluster.** Run `make cluster-up`, then `make smoke` to check the setup end to end. Run `make` on its own to see every command.
 
 ## Docs
 

@@ -1,0 +1,37 @@
+# Local dev cluster. Create with `make cluster-up`, delete with `make cluster-down`.
+# k3d runs each Kubernetes node as a Docker container inside Docker Desktop's VM.
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: neext
+
+# Pinned to match prod's k3s version (dev/prod parity).
+image: rancher/k3s:v1.35.5-k3s1
+
+# 1 control-plane node + 2 workers, so scheduling, node drains and
+# simulated node scaling behave like a real multi-node cluster.
+servers: 1
+agents: 2
+
+kubeAPI:
+  hostIP: "127.0.0.1"
+  hostPort: "6550"
+
+ports:
+  # http://localhost:8080 → k3d's load balancer → Traefik (k3s's built-in ingress) on port 80.
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+
+registries:
+  # Local image registry that Tilt pushes to (Layer 1).
+  # Port 5005, not the usual 5000: macOS AirPlay Receiver already listens on 5000.
+  create:
+    name: neext-registry
+    host: "127.0.0.1"
+    hostPort: "5005"
+
+options:
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true
