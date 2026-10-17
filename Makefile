@@ -25,7 +25,8 @@ scan: ## CVE counts (Docker Scout) for every image the dev cluster runs, incl. i
 	@for img in $$(docker ps --filter name=k3d-$(CLUSTER) --filter name=neext-registry --format '{{.Image}}' | sort -u) \
 	            $$($(KUBECTL) get pods -A -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.image}{"\n"}{end}{end}' | sort -u); do \
 	  printf "  %-56s " "$$img"; \
-	  docker scout quickview "$$img" 2>/dev/null | grep -E '^\s*Target' | grep -oE '[0-9]+C +[0-9]+H +[0-9]+M +[0-9]+L' | head -1 || echo "?"; \
+	  r=$$(docker scout quickview "$$img" 2>/dev/null | grep -E '^\s*Target' | grep -oE '[0-9]+C +[0-9]+H +[0-9]+M +[0-9]+L' | head -1); \
+	  echo "$${r:-? scan failed, try again}"; \
 	done
 
 cluster-up: ## Create the local dev cluster (skips creation if it already exists)
