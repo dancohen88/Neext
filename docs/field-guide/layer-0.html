@@ -1,0 +1,767 @@
+<title>Layer 0 Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400..700&display=swap">
+<style>
+/* Layout: a technical guide. Progress bar in the top bar; layer map; numbers panel; two diagrams; concept cards per milestone with self-check questions; incident log; operations; troubleshooting; readiness check. Tokens match docs/blueprint.html. */
+:root {
+  --till: #F3F4F8; --card: #FFFFFF; --ink: #15182E; --muted: #5B6185; --line: #D8DBE8;
+  --cobalt: #2B3BE8; --on-cobalt: #FFFFFF;
+  --pink: #F5A6C1; --pink-soft: #FCE4EC;
+  --tag: #FFD23F; --tag-ink: #15182E;
+  --ok: #16794B; --warn: #A86400; --bad: #C42B44;
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --till: #0E1121; --card: #171B31; --ink: #E9EAF5; --muted: #A0A6C8; --line: #2B3153;
+    --cobalt: #8C96FF; --on-cobalt: #0E1121; --pink: #E890AE; --pink-soft: #3A2232;
+    --ok: #4FCB8D; --warn: #F1AB45; --bad: #FF6E84;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --till: #0E1121; --card: #171B31; --ink: #E9EAF5; --muted: #A0A6C8; --line: #2B3153;
+  --cobalt: #8C96FF; --on-cobalt: #0E1121; --pink: #E890AE; --pink-soft: #3A2232;
+  --ok: #4FCB8D; --warn: #F1AB45; --bad: #FF6E84;
+  color-scheme: dark;
+}
+
+body { background: var(--till); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 0 80px; display: grid; gap: 64px; }
+h1, h2, h3, h4 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.08; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: .9em; }
+code { background: color-mix(in srgb, var(--cobalt) 9%, transparent); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: var(--cobalt); }
+:focus-visible { outline: 2px solid var(--cobalt); outline-offset: 3px; border-radius: 4px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 64ch; color: var(--muted); font-size: 17px; }
+.wm { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.045em; }
+.wm .ee { color: var(--cobalt); }
+
+/* Top bar with the bag */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--till); border-bottom: 1px solid var(--line); }
+.topbar-in { max-width: 1180px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+.topbar .wm { font-size: 24px; }
+.bag { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.bag-meter { width: 120px; height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+.bag-meter i { display: block; height: 100%; width: 0; background: var(--cobalt); border-radius: 99px; transition: width .3s ease; }
+.bag-count { font-family: var(--font-mono); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Hero */
+.hero { display: grid; gap: 18px; padding-top: 40px; }
+.hero h1 { font-size: clamp(44px, 8vw, 96px); letter-spacing: -0.035em; }
+.hero h1 .ee { color: var(--cobalt); }
+.swing { display: inline-flex; align-items: center; gap: 8px; background: var(--tag); color: var(--tag-ink); font-family: var(--font-mono); font-size: 13px; font-weight: 600; padding: 6px 12px 6px 10px; border-radius: 4px; transform: rotate(-3deg); justify-self: start; }
+.swing::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--till); }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.how div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; }
+.how b { font-family: var(--font-display); font-size: 17px; }
+.how span { font-size: 14px; color: var(--muted); }
+
+/* Section heads */
+.sec { display: grid; gap: 20px; }
+.sec-head { display: grid; gap: 8px; }
+.sec-head h2 { font-size: clamp(30px, 4.5vw, 46px); letter-spacing: -0.025em; }
+
+/* Layer strip */
+.layers { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.layer { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.layer .n { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--muted); }
+.layer .nm { font-weight: 600; font-size: 14.5px; }
+.layer.done { background: var(--tag); border-color: var(--tag); color: var(--tag-ink); }
+.layer.done .n { color: var(--tag-ink); }
+.layer.next { border: 2px dashed var(--cobalt); }
+
+/* Directory (analogies) */
+.directory { background: var(--ink); color: var(--till); border-radius: 14px; padding: 22px 24px; display: grid; gap: 14px; }
+.directory h3 { font-size: 22px; color: var(--till); }
+.dir-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0 28px; }
+.dir-row { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px dashed color-mix(in srgb, var(--till) 25%, transparent); font-size: 14.5px; }
+.dir-row > * { min-width: 0; }
+.dir-row b { font-family: var(--font-mono); font-weight: 500; font-size: 13px; color: var(--tag); white-space: nowrap; }
+.dir-row span { text-align: right; }
+
+/* Figures */
+figure { margin: 0; display: grid; gap: 12px; }
+.scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.scroll svg { display: block; width: 100%; min-width: 860px; height: auto; }
+figcaption { max-width: 74ch; color: var(--muted); font-size: 15px; }
+.dia { color: var(--ink); font-family: var(--font-body); }
+.region { fill: color-mix(in srgb, var(--cobalt) 4%, var(--card)); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 7 5; }
+.region2 { fill: color-mix(in srgb, var(--cobalt) 8%, var(--card)); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 7 5; }
+.ns { fill: color-mix(in srgb, var(--pink) 16%, var(--card)); stroke: var(--pink); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.region-label { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; fill: var(--muted); }
+.box { fill: var(--card); stroke: var(--line); stroke-width: 1.25; }
+.t { font-size: 14px; font-weight: 600; fill: var(--ink); }
+.s { font-size: 11.5px; fill: var(--muted); }
+.gate .box { fill: var(--cobalt); stroke: none; }
+.gate .t, .gate .s { fill: var(--on-cobalt); }
+.badbox .box { fill: color-mix(in srgb, var(--bad) 12%, var(--card)); stroke: var(--bad); }
+.badbox .t { fill: var(--bad); }
+.edge { fill: none; stroke: var(--muted); stroke-width: 1.5; marker-end: url(#ah); }
+.edge.hot { stroke: var(--cobalt); stroke-width: 2; stroke-dasharray: 7 6; marker-end: url(#ahh); animation: flow 1.1s linear infinite; }
+.edge.bad { stroke: var(--bad); stroke-dasharray: 5 4; marker-end: url(#ahb); }
+.ah { fill: var(--muted); } .ahh { fill: var(--cobalt); } .ahb { fill: var(--bad); }
+.lbl { font-size: 11px; fill: var(--muted); text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 4px; stroke-linejoin: round; }
+.lbl.port { font-family: var(--font-mono); font-size: 11px; fill: var(--cobalt); font-weight: 600; }
+.lbl.badl { fill: var(--bad); font-weight: 600; }
+@keyframes flow { to { stroke-dashoffset: -13; } }
+
+/* Concept groups and cards */
+.aisle { display: grid; gap: 16px; }
+.aisle-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; border-bottom: 2px solid var(--ink); padding-bottom: 8px; }
+.aisle-head h3 { font-size: 26px; letter-spacing: -0.015em; }
+.aisle-head .eyebrow { margin-left: auto; }
+.aisle-no { font-family: var(--font-mono); font-size: 13px; font-weight: 600; background: var(--ink); color: var(--till); padding: 3px 8px; border-radius: 4px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+.concept { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; transition: border-color .2s ease, box-shadow .2s ease; }
+.concept.in-bag { border-color: var(--cobalt); box-shadow: inset 4px 0 0 var(--cobalt); }
+.concept h4 { font-size: 19px; letter-spacing: -0.01em; }
+.concept p { font-size: 15px; }
+.term { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.analogy { background: var(--pink-soft); border-radius: 8px; padding: 9px 12px; font-size: 14.5px !important; }
+.analogy b, .inneext b { font-weight: 600; }
+.inneext { font-size: 14.5px !important; color: var(--muted); }
+details { border-top: 1px dashed var(--line); padding-top: 8px; }
+summary { cursor: pointer; font-weight: 600; font-size: 14.5px; color: var(--cobalt); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "＋ "; font-family: var(--font-mono); }
+details[open] summary::before { content: "－ "; }
+details p { margin-top: 8px; font-size: 14.5px; }
+.card-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.bag-btn { font: 600 13.5px var(--font-body); border-radius: 999px; padding: 7px 14px; cursor: pointer; border: 1.5px solid var(--cobalt); background: transparent; color: var(--cobalt); }
+.bag-btn:hover { background: color-mix(in srgb, var(--cobalt) 10%, transparent); }
+.bag-btn[aria-pressed="true"] { background: var(--cobalt); color: var(--on-cobalt); }
+.later { font-size: 12.5px; color: var(--muted); }
+
+/* Receipts */
+.receipts { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; align-items: start; }
+.receipt { background: var(--card); font-family: var(--font-mono); font-size: 13px; line-height: 1.5; padding: 18px 18px 22px; border: 1px solid var(--line); display: grid; gap: 8px; min-width: 0;
+  -webkit-mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x; mask: radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x; }
+.receipt .rhead { text-align: center; border-bottom: 1px dashed var(--line); padding-bottom: 8px; display: grid; gap: 2px; }
+.receipt .rhead b { font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+.receipt .row { display: grid; grid-template-columns: 62px 1fr; gap: 8px; }
+.receipt .row > * { min-width: 0; overflow-wrap: anywhere; }
+.receipt .k { color: var(--muted); }
+.receipt .total { border-top: 1px dashed var(--line); padding-top: 8px; font-weight: 600; }
+
+/* Operating */
+.ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.panel h3 { font-size: 21px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+.cmd-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.cmd-table td { padding: 8px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.cmd-table td + td { padding-left: 12px; }
+.cmd { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.copy { font: 600 11px var(--font-mono); border: 1px solid var(--line); background: var(--till); color: var(--muted); border-radius: 4px; padding: 2px 6px; cursor: pointer; }
+.copy:hover { color: var(--cobalt); border-color: var(--cobalt); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.ok { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+.chip.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 15%, transparent); }
+.chip.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 13%, transparent); }
+.tscroll { overflow-x: auto; }
+.trouble { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.trouble th { text-align: left; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .04em; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.trouble td { padding: 11px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+
+/* Readiness check */
+.checkout { background: var(--card); border: 2px solid var(--ink); border-radius: 16px; padding: 24px clamp(18px, 3vw, 32px); display: grid; gap: 16px; }
+.checkout h2 { font-size: clamp(30px, 4.5vw, 44px); letter-spacing: -0.025em; }
+.checkout-status { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.big-count { font-family: var(--font-display); font-weight: 800; font-size: 48px; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.missing { display: flex; flex-wrap: wrap; gap: 6px; }
+.missing a { font-size: 13px; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; color: var(--ink); }
+.missing a:hover { border-color: var(--cobalt); color: var(--cobalt); }
+.foot { color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 560px) { .topbar { position: static; } .bag-meter { width: 80px; } .aisle-head .eyebrow { margin-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .edge.hot { animation: none; } .bag-meter i, .concept { transition: none; } }
+</style>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="wm">Ne<span class="ee">e</span>xt <span class="eyebrow" style="letter-spacing:.08em">· Field guide</span></span>
+    <a class="bag" href="#checkout" aria-label="Concepts understood so far">
+      <span class="bag-meter" aria-hidden="true"><i id="meter"></i></span>
+      <span class="bag-count" id="bag-count">Understood: 0 / 26</span>
+    </a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">Layer 0 · Foundations</span>
+    <h1>Layer 0, from the ground up</h1>
+    <span class="swing">Platform: built · Application code: none yet</span>
+    <p class="lede">Layer 0 built the platform everything else will run on:</p>
+    <ul class="lede" style="margin:0;padding-left:22px">
+      <li>a reproducible toolchain</li>
+      <li>a three-node Kubernetes cluster</li>
+      <li>a protected git workflow</li>
+      <li>automated checks on every change</li>
+      <li>a first security baseline</li>
+    </ul>
+    <p class="lede">There's no website, service or database yet. This guide covers the concepts behind each piece, how they connect, and what went wrong along the way.</p>
+    <div class="how">
+      <div><b>Read a card</b><span>What the concept is, how it works, and where it lives in Neext.</span></div>
+      <div><b>Check yourself</b><span>Answer the question before opening it. If you can, you've got it.</span></div>
+      <div><b>Mark it understood</b><span>Progress shows in the top bar. The readiness check at the end tells you when you're ready for Layer 1.</span></div>
+    </div>
+  </header>
+
+  <!-- Where we are -->
+  <section class="sec" aria-labelledby="where-h">
+    <div class="sec-head"><span class="eyebrow">Roadmap</span><h2 id="where-h">Where Layer 0 sits</h2></div>
+    <div class="layers">
+      <div class="layer done"><span class="n">L0 · DONE</span><span class="nm">Foundations</span></div>
+      <div class="layer next"><span class="n">L1 · NEXT</span><span class="nm">First slice</span></div>
+      <div class="layer"><span class="n">L2</span><span class="nm">Path to prod</span></div>
+      <div class="layer"><span class="n">L3</span><span class="nm">Front door</span></div>
+      <div class="layer"><span class="n">L4</span><span class="nm">Events &amp; batch</span></div>
+      <div class="layer"><span class="n">L5</span><span class="nm">Observability &amp; chaos</span></div>
+      <div class="layer"><span class="n">L6</span><span class="nm">Load &amp; scaling</span></div>
+      <div class="layer"><span class="n">L7</span><span class="nm">Control centre</span></div>
+      <div class="layer"><span class="n">L8</span><span class="nm">Prod hardening</span></div>
+    </div>
+  </section>
+
+  <!-- Directory -->
+  <section class="directory" aria-labelledby="dir-h">
+    <h3 id="dir-h">Layer 0 by the numbers</h3>
+    <div class="dir-grid">
+      <div class="dir-row"><b>3 nodes</b><span>1 control plane + 2 workers, each a Docker container</span></div>
+      <div class="dir-row"><b>v1.35.9</b><span>k3s version, the same in dev and (later) prod</span></div>
+      <div class="dir-row"><b>~45 s</b><span>to create the cluster from scratch</span></div>
+      <div class="dir-row"><b>~1.1 GB</b><span>cluster memory at idle</span></div>
+      <div class="dir-row"><b>14 GB</b><span>Docker Desktop VM cap (reports 13.6 GiB)</span></div>
+      <div class="dir-row"><b>3 ports</b><span>8080 ingress · 6550 API · 5005 registry</span></div>
+      <div class="dir-row"><b>127.0.0.1</b><span>the only address any of them listens on</span></div>
+      <div class="dir-row"><b>~8 s</b><span>one CI run on an arm64 runner</span></div>
+      <div class="dir-row"><b>2 checks</b><span>yamllint (format) + kubeconform (schema)</span></div>
+      <div class="dir-row"><b>10 tools</b><span>in the Brewfile</span></div>
+      <div class="dir-row"><b>34 → 0</b><span>critical CVEs reachable from your Wi-Fi (k3d-proxy on 8080)</span></div>
+      <div class="dir-row"><b>6</b><span>real incidents, logged below</span></div>
+    </div>
+  </section>
+
+  <!-- Diagram A -->
+  <figure>
+    <div class="sec-head"><span class="eyebrow">Diagram A · runtime</span><h2>How a request gets in</h2></div>
+    <div class="scroll">
+      <svg class="dia" viewBox="0 0 1000 380" role="img" aria-label="On your Mac, a request to 127.0.0.1:8080 enters Docker Desktop's Linux VM, passes through the k3d-proxy load balancer to Traefik inside the k3d cluster, then to a Service and a Pod in the neext-local namespace. kubectl reaches the control plane on 127.0.0.1:6550 and the registry feeds images to the nodes.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0L10,5L0,10z"/></marker>
+          <marker id="ahh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path class="ahh" d="M0,0L10,5L0,10z"/></marker>
+          <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahb" d="M0,0L10,5L0,10z"/></marker>
+        </defs>
+        <rect class="region" x="10" y="10" width="980" height="360" rx="18"/>
+        <text class="region-label" x="26" y="32">YOUR MAC (macOS)</text>
+        <rect class="region2" x="210" y="44" width="764" height="312" rx="16"/>
+        <text class="region-label" x="226" y="64">DOCKER DESKTOP · Linux VM · 14 GB</text>
+        <rect class="region" x="430" y="74" width="530" height="266" rx="14"/>
+        <text class="region-label" x="944" y="332" text-anchor="end">k3d cluster "neext" · k3s v1.35.9</text>
+        <rect class="ns" x="615" y="128" width="330" height="104" rx="12"/>
+        <text class="region-label" x="629" y="146">namespace: neext-local</text>
+
+        <!-- edges -->
+        <path class="edge hot" d="M170,188H236"/><text class="lbl port" x="203" y="180">127.0.0.1:8080</text>
+        <path class="edge hot" d="M390,188H456"/><text class="lbl" x="423" y="180">port 80</text>
+        <path class="edge hot" d="M590,188H626"/><text class="lbl" x="608" y="180">rule</text>
+        <path class="edge hot" d="M750,188H781"/><text class="lbl" x="766" y="180">picks</text>
+        <path class="edge" d="M170,108H456"/><text class="lbl port" x="313" y="100">127.0.0.1:6550</text>
+        <path class="edge" d="M390,286H456"/><text class="lbl" x="423" y="278">images</text>
+        <path class="edge" d="M170,286H236"/><text class="lbl port" x="203" y="278">127.0.0.1:5005</text>
+
+        <!-- outside actors -->
+        <rect class="box" x="30" y="160" width="140" height="56" rx="10"/><text class="t" x="46" y="184">You</text><text class="s" x="46" y="202">browser or curl</text>
+        <rect class="box" x="30" y="80" width="140" height="56" rx="10"/><text class="t" x="46" y="104">kubectl</text><text class="s" x="46" y="122">gives orders</text>
+        <rect class="box" x="30" y="258" width="140" height="56" rx="10"/><text class="t" x="46" y="282">Tilt (Layer 1)</text><text class="s" x="46" y="300">pushes images</text>
+
+        <!-- inside docker, outside cluster -->
+        <rect class="box" x="240" y="160" width="150" height="56" rx="10"/><text class="t" x="256" y="184">k3d-proxy</text><text class="s" x="256" y="202">load balancer</text>
+        <rect class="box" x="240" y="258" width="150" height="56" rx="10"/><text class="t" x="256" y="282">neext-registry</text><text class="s" x="256" y="300">registry:3.1.2</text>
+
+        <!-- cluster -->
+        <rect class="box" x="460" y="86" width="140" height="44" rx="9"/><text class="t" x="474" y="106">Control plane</text><text class="s" x="474" y="122">the API</text>
+        <rect class="box" x="460" y="160" width="130" height="56" rx="10"/><text class="t" x="476" y="184">Traefik</text><text class="s" x="476" y="202">ingress controller</text>
+        <rect class="box" x="630" y="160" width="120" height="56" rx="10"/><text class="t" x="646" y="184">Service</text><text class="s" x="646" y="202">"smoke"</text>
+        <rect class="box" x="785" y="160" width="140" height="56" rx="10"/><text class="t" x="801" y="184">Pod</text><text class="s" x="801" y="202">whoami container</text>
+        <rect class="box" x="460" y="262" width="140" height="44" rx="9"/><text class="t" x="474" y="282">server-0</text><text class="s" x="474" y="298">node · control plane</text>
+        <rect class="box" x="615" y="262" width="140" height="44" rx="9"/><text class="t" x="629" y="282">agent-0</text><text class="s" x="629" y="298">node · worker</text>
+        <rect class="box" x="770" y="262" width="140" height="44" rx="9"/><text class="t" x="784" y="282">agent-1</text><text class="s" x="784" y="298">node · worker</text>
+      </svg>
+    </div>
+    <figcaption>The moving line is the <code>make smoke</code> request. It starts on your Mac and enters Docker Desktop's Linux VM on <code>127.0.0.1:8080</code>. The k3d-proxy passes it into the cluster, Traefik matches it to a rule, and the Service picks a Pod to answer it. Each node in the bottom row is itself a Docker container. The three blue addresses are the only ways in, and none of them is reachable from your Wi-Fi.</figcaption>
+  </figure>
+
+  <!-- Diagram B -->
+  <figure>
+    <div class="sec-head"><span class="eyebrow">Diagram B · change flow</span><h2>How a change gets in</h2></div>
+    <div class="scroll">
+      <svg class="dia" viewBox="0 0 1000 300" role="img" aria-label="A change goes from your branch, pushed to GitHub as a pull request, checked by the required CI lint job, then squash-merged by you into the protected main branch. A failing check blocks the merge, and a direct push to main is rejected. Merging closes the issue; Dependabot opens its own pull requests.">
+        <rect class="region" x="10" y="80" width="220" height="130" rx="16"/>
+        <text class="region-label" x="26" y="102">YOUR MAC</text>
+        <rect class="region" x="250" y="10" width="740" height="280" rx="16"/>
+        <text class="region-label" x="266" y="32">GITHUB · dancohen88/Neext</text>
+
+        <path class="edge bad" d="M120,120V60H918V118"/><text class="lbl badl" x="520" y="54">direct push to main: rejected by the ruleset</text>
+        <path class="edge" d="M210,148H276"/><text class="lbl" x="243" y="140">git push</text>
+        <path class="edge" d="M430,148H466"/><text class="lbl" x="448" y="140">runs</text>
+        <path class="edge" d="M640,148H676"/><text class="lbl" x="658" y="140">green</text>
+        <path class="edge" d="M830,148H866"/><text class="lbl" x="848" y="140">squash</text>
+        <path class="edge bad" d="M555,176V214"/><text class="lbl badl" x="563" y="200" style="text-anchor:start">red</text>
+        <path class="edge" d="M755,176V214"/><text class="lbl" x="763" y="200" style="text-anchor:start">closes</text>
+        <path class="edge" d="M355,214V180"/><text class="lbl" x="363" y="200" style="text-anchor:start">opens</text>
+
+        <rect class="box" x="30" y="120" width="180" height="56" rx="10"/><text class="t" x="46" y="144">Your branch</text><text class="s" x="46" y="162">e.g. docs/m0.6-field-guide</text>
+        <rect class="box" x="280" y="120" width="150" height="56" rx="10"/><text class="t" x="296" y="144">Pull request</text><text class="s" x="296" y="162">"Closes #10"</text>
+        <rect class="box" x="470" y="120" width="170" height="56" rx="10"/><text class="t" x="486" y="144">CI · lint</text><text class="s" x="486" y="162">arm64 runner · ~8 s</text>
+        <g class="gate"><rect class="box" x="680" y="120" width="150" height="56" rx="10"/><text class="t" x="696" y="144">You merge</text><text class="s" x="696" y="162">the only human step</text></g>
+        <rect class="box" x="870" y="120" width="100" height="56" rx="10"/><text class="t" x="886" y="144">main</text><text class="s" x="886" y="162">protected</text>
+        <g class="badbox"><rect class="box" x="470" y="218" width="170" height="44" rx="9"/><text class="t" x="486" y="245">Merge blocked</text></g>
+        <rect class="box" x="680" y="218" width="150" height="44" rx="9"/><text class="t" x="696" y="238">Issue closes</text><text class="s" x="696" y="254">board → Done</text>
+        <rect class="box" x="280" y="218" width="150" height="44" rx="9"/><text class="t" x="296" y="238">Dependabot</text><text class="s" x="296" y="254">weekly update PRs</text>
+      </svg>
+    </div>
+    <figcaption>Every change, whether from you, Claude or Dependabot, takes the same route: branch, pull request, required CI check, your merge. Two routes are blocked, shown in red: pushing straight to <code>main</code>, and merging past a failed check.</figcaption>
+  </figure>
+
+  <!-- Concepts -->
+  <section class="sec" aria-labelledby="aisles-h">
+    <div class="sec-head">
+      <span class="eyebrow">26 concepts · 5 milestones</span>
+      <h2 id="aisles-h">The concepts</h2>
+      <p class="lede">Grouped by milestone. The note under each card says which later layer leans on that idea.</p>
+    </div>
+
+    <!-- M0.1 -->
+    <div class="aisle" id="aisle-1">
+      <div class="aisle-head"><span class="aisle-no">M0.1</span><h3>Git and the GitHub workflow</h3><span class="eyebrow">5 concepts</span></div>
+      <div class="cards">
+        <article class="concept" data-id="git">
+          <span class="term">look up: git, commit, repository</span>
+          <h4>Git: commits and history</h4>
+          <p>Git records a project as a chain of <b>commits</b>. Each commit is a snapshot of every file, with a message saying what changed and why. The chain is the history, and you can return to any point in it.</p>
+          <p class="inneext"><b>In Neext:</b> <code>git log --oneline</code> shows our history. Each line on <code>main</code> is one finished milestone.</p>
+          <details><summary>Check yourself: what's in a commit?</summary><p>A snapshot of the files, plus a message, an author and a link to the commit before it. That link is what makes history a chain.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Used in every layer</span></div>
+        </article>
+        <article class="concept" data-id="branch">
+          <span class="term">look up: git branch, remote, push, pull</span>
+          <h4>Branches and GitHub</h4>
+          <p>A <b>branch</b> is a separate line of commits where you can work without touching <code>main</code>. <b>GitHub</b> holds the shared copy of the repo, called a <i>remote</i>. You <code>push</code> your commits up to it and <code>pull</code> other people's down.</p>
+          <p class="inneext"><b>In Neext:</b> every milestone gets a branch like <code>docs/m0.6-field-guide</code>. After a merge, <code>git switch main &amp;&amp; git pull</code> brings your copy up to date.</p>
+          <details><summary>Check yourself: why not just work on <code>main</code>?</summary><p>Unfinished work would sit in the official copy. A branch keeps half-done work separate until it's been checked and signed off.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Used in every layer</span></div>
+        </article>
+        <article class="concept" data-id="pr">
+          <span class="term">look up: pull request, issues, closing keywords</span>
+          <h4>Issues, pull requests and the board</h4>
+          <p>An <b>Issue</b> describes a piece of work. A <b>pull request</b> (PR) proposes merging a branch into <code>main</code>, with the changes shown for review. Writing <code>Closes #10</code> in a PR closes Issue #10 automatically when the PR merges. The <b>project board</b> shows each Issue's status, and <b>Milestones</b> group Issues by layer.</p>
+          <p class="inneext"><b>In Neext:</b> Issues #1–#4, #9 and #10 sit under "Layer 0 · Foundations". Each PR description doubles as a learning write-up.</p>
+          <details><summary>Check yourself: what moves a card to "Done" on the board?</summary><p>Merging a PR that says <code>Closes #N</code>. GitHub closes the Issue, and the board's built-in automation moves its card to Done.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Used in every layer</span></div>
+        </article>
+        <article class="concept" data-id="ruleset">
+          <span class="term">look up: GitHub rulesets, branch protection</span>
+          <h4>A protected main</h4>
+          <p>A <b>ruleset</b> is a set of rules GitHub enforces on a branch. Ours says changes to <code>main</code> must come through a PR, and nobody can force-push, delete it or bypass the rules, the repo owner included. It also requires the <code>lint</code> check to pass.</p>
+          <p class="inneext"><b>In Neext:</b> pushing an unapproved commit straight to <code>main</code> was rejected. One twist: pushing a commit that an open, mergeable PR already contains counts as merging that PR. That's how PR #5 got merged by the demo push.</p>
+          <details><summary>Check yourself: why are 0 approvals required, if the point is review?</summary><p>GitHub won't let you approve your own PR, so on a solo repo, requiring an approval would lock everyone out. The protection comes from forcing every change through a PR and the CI check, with you choosing to merge.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L2: prod changes only via PR</span></div>
+        </article>
+        <article class="concept" data-id="squash">
+          <span class="term">look up: squash merge, Conventional Commits</span>
+          <h4>Squash merging and commit titles</h4>
+          <p>A <b>squash merge</b> combines all of a PR's commits into <i>one new commit</i> on <code>main</code>, titled with the PR's title. <b>Conventional Commits</b> is a title format (<code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>ci:</code>, <code>chore:</code>) that makes history readable, and lets tools generate changelogs from it.</p>
+          <p class="inneext"><b>In Neext:</b> <code>main</code> has one line per milestone. Afterwards git says your old branch is "not fully merged", because the squash created a brand-new commit. Check with <code>git diff</code>, then delete the branch with <code>-D</code>.</p>
+          <details><summary>Check yourself: why does git think a squash-merged branch isn't merged?</summary><p>The branch's own commits never reached <code>main</code>. A new, combined commit did. The content is the same, but the commits are different, and git compares commits.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Used in every layer</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- M0.2 -->
+    <div class="aisle" id="aisle-2">
+      <div class="aisle-head"><span class="aisle-no">M0.2</span><h3>Toolchain and containers</h3><span class="eyebrow">5 concepts</span></div>
+      <div class="cards">
+        <article class="concept" data-id="brew">
+          <span class="term">look up: Homebrew, formula vs cask, Brewfile</span>
+          <h4>Toolchain as code</h4>
+          <p><b>Homebrew</b> installs software on a Mac. A <i>formula</i> is a command-line tool and a <i>cask</i> is a desktop app. The <b>Brewfile</b> lists every tool the project needs, and <code>brew bundle</code> installs the lot. The setup becomes a file you can check, share and repeat, rather than steps you have to remember.</p>
+          <p class="inneext"><b>In Neext:</b> <code>Brewfile</code> has 10 tools. <code>brew bundle check</code> says whether anything's missing.</p>
+          <details><summary>Check yourself: what's the advantage over a list of install commands in the README?</summary><p>The Brewfile can be run and checked automatically, and it can't drift from what's actually installed without <code>brew bundle check</code> noticing.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Grows each layer</span></div>
+        </article>
+        <article class="concept" data-id="containers">
+          <span class="term">look up: container image, container, Docker</span>
+          <h4>Images and containers</h4>
+          <p>An <b>image</b> is a sealed, read-only package: a program plus everything it needs to run. A <b>container</b> is an image that's running, isolated from everything else on the machine. Many containers can start from one image.</p>
+          <p class="inneext"><b>In Neext:</b> <code>docker images</code> lists the kits and <code>docker ps</code> lists what's running. Even the cluster's nodes are containers.</p>
+          <details><summary>Check yourself: you delete a container. Is the image gone?</summary><p>No. The image is the kit, and stays until you remove it with <code>docker rmi</code>. You can start a fresh container from it at any time.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1: we build our own images</span></div>
+        </article>
+        <article class="concept" data-id="vm">
+          <span class="term">look up: Linux kernel, Docker Desktop VM</span>
+          <h4>Why Docker Desktop is a virtual machine</h4>
+          <p>Containers share the <b>Linux kernel</b> of the machine they run on. macOS isn't Linux, so Docker Desktop runs a small Linux <b>virtual machine</b> and every container lives inside it. That VM gets a fixed share of your Mac's memory.</p>
+          <p class="inneext"><b>In Neext:</b> capped at 14 GB. It reports 13.6 GiB, because the VM's own kernel keeps a slice for itself.</p>
+          <details><summary>Check yourself: why can't macOS run Linux containers directly?</summary><p>A container is just an isolated process, and it uses the host's kernel. Linux containers need a Linux kernel, so on a Mac one has to be provided by a VM.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L5: memory stress drills</span></div>
+        </article>
+        <article class="concept" data-id="arm">
+          <span class="term">look up: CPU architecture, arm64, multi-arch images</span>
+          <h4>arm64 and multi-arch images</h4>
+          <p>Programs are built for a <b>CPU architecture</b>. Your Mac and our Oracle prod server are both <b>arm64</b>, while most cloud servers are x86 (amd64). Popular images are <b>multi-arch</b>: one name points to a list of builds, and Docker pulls the one that matches your machine.</p>
+          <p class="inneext"><b>In Neext:</b> <code>docker run --rm alpine uname -m</code> printed <code>aarch64</code>, the Linux name for arm64. CI also runs on arm64.</p>
+          <details><summary>Check yourself: why does it matter that dev and prod are both arm64?</summary><p>We build one image and run it in both places. Mismatched architectures would need two builds, or slow emulation.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1 and L2</span></div>
+        </article>
+        <article class="concept" data-id="java">
+          <span class="term">look up: JDK, LTS, JAVA_HOME, transitive dependency</span>
+          <h4>Java versions and JAVA_HOME</h4>
+          <p>The <b>JDK</b> is the kit for building and running Java. <b>LTS</b> (long-term support) releases like 25 get years of fixes, while the releases in between, like 27, are short-lived. <code>JAVA_HOME</code> tells Java tools which JDK to use.</p>
+          <p class="inneext"><b>In Neext:</b> Homebrew's Maven brought Java 27 in as a <b>transitive dependency</b>: you didn't ask for it, but something you asked for did. Setting <code>JAVA_HOME</code> pins Java 25.</p>
+          <details><summary>Check yourself: <code>mvn -v</code> says Java 27. What do you check?</summary><p>Whether <code>JAVA_HOME</code> is set in that terminal. Open a new one, or run <code>source ~/.zshrc</code>.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1: the catalog service</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- M0.3 -->
+    <div class="aisle" id="aisle-3">
+      <div class="aisle-head"><span class="aisle-no">M0.3</span><h3>Kubernetes</h3><span class="eyebrow">8 concepts</span></div>
+      <div class="cards">
+        <article class="concept" data-id="k8s">
+          <span class="term">look up: Kubernetes, desired state, reconciliation loop</span>
+          <h4>What Kubernetes is for</h4>
+          <p>Kubernetes runs containers across many machines. You declare the <b>desired state</b> ("one copy of this, reachable on that path"), and Kubernetes keeps making reality match it. This is the <b>reconciliation loop</b>: if a container dies, Kubernetes notices the gap and starts another.</p>
+          <p class="inneext"><b>In Neext:</b> every <code>.yaml</code> in <code>platform/</code> is a desired-state declaration, and <code>kubectl apply</code> hands it over.</p>
+          <details><summary>Check yourself: you delete a Pod managed by a Deployment. What happens?</summary><p>A new one appears within seconds. The desired state still says "1 copy", so the reconciliation loop replaces it.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">The basis of every later layer</span></div>
+        </article>
+        <article class="concept" data-id="nodes">
+          <span class="term">look up: control plane, worker node, k3s, k3d</span>
+          <h4>Clusters and nodes</h4>
+          <p>A <b>cluster</b> is a group of machines called <b>nodes</b>. The <b>control plane</b> is the brain: it runs the API that takes orders and decides where things run. <b>Workers</b> run the actual containers. <b>k3s</b> is a lightweight Kubernetes, and <b>k3d</b> runs k3s with each node as a Docker container.</p>
+          <p class="inneext"><b>In Neext:</b> 1 control plane and 2 workers, on k3s v1.35.9, the same version prod will run. <code>kubectl get nodes</code> lists them.</p>
+          <details><summary>Check yourself: why two workers rather than one?</summary><p>So we can practise what multi-node clusters do: spread work out, drain a node, and survive losing one. Layers 6 and 8 rely on this.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L2: prod k3s</span></div>
+        </article>
+        <article class="concept" data-id="workloads">
+          <span class="term">look up: Pod, Deployment, ReplicaSet</span>
+          <h4>Pods and Deployments</h4>
+          <p>A <b>Pod</b> is the smallest thing Kubernetes runs: one container, sometimes a few working together. You rarely create Pods directly. A <b>Deployment</b> says "keep N copies of this Pod running", and manages a <b>ReplicaSet</b> that does the counting. Changing a Deployment rolls out new Pods gradually.</p>
+          <p class="inneext"><b>In Neext:</b> <code>platform/smoke-test.yaml</code> declares a Deployment with <code>replicas: 1</code>. The Pod's name, <code>smoke-77f9d8f4cd-…</code>, includes the ReplicaSet's ID.</p>
+          <details><summary>Check yourself: Pod or Deployment, which would you scale to handle more traffic?</summary><p>The Deployment, by raising <code>replicas</code>. Pods are disposable. In Layer 6, the autoscaler changes this number for you.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1 and L6</span></div>
+        </article>
+        <article class="concept" data-id="service">
+          <span class="term">look up: Service, Ingress, ingress controller, Traefik</span>
+          <h4>Services, Ingress and Traefik</h4>
+          <p>Pods come and go, and their addresses change. A <b>Service</b> is a stable name that always forwards to whichever matching Pods exist right now. An <b>Ingress</b> is a rule for outside traffic, such as "requests to <code>/</code> go to Service <i>smoke</i>". An <b>ingress controller</b> enforces those rules; k3s ships with <b>Traefik</b>.</p>
+          <p class="inneext"><b>In Neext:</b> follow the animated line in diagram A: <code>localhost:8080</code> → Traefik → Service → Pod.</p>
+          <details><summary>Check yourself: why not send traffic straight to a Pod's address?</summary><p>That address dies with the Pod. The Service's name stays the same, and it spreads traffic across all the healthy copies.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1; replaced by a gateway in L3</span></div>
+        </article>
+        <article class="concept" data-id="ns">
+          <span class="term">look up: namespace</span>
+          <h4>Namespaces</h4>
+          <p>A <b>namespace</b> divides one cluster into separate areas. Names only have to be unique within a namespace, and rules and quotas can be applied per namespace.</p>
+          <p class="inneext"><b>In Neext:</b> <code>neext-local</code> belongs to Tilt (your uncommitted code) and <code>neext-dev</code> to Argo CD (a mirror of <code>main</code>). They're kept apart, because Argo CD undoes anything that isn't in git.</p>
+          <details><summary>Check yourself: why must Tilt and Argo CD never share a namespace?</summary><p>Argo CD would treat every Tilt deploy as drift and revert it within minutes. The two would fight forever.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1 and L2</span></div>
+        </article>
+        <article class="concept" data-id="probes">
+          <span class="term">look up: readiness probe, resource requests and limits</span>
+          <h4>Health checks and resource limits</h4>
+          <p>A <b>readiness probe</b> is a check Kubernetes runs before sending a Pod traffic, such as "does <code>/health</code> answer?". <b>Requests</b> reserve CPU and memory for a container, and <b>limits</b> cap them. Without limits, one greedy container can starve the rest.</p>
+          <p class="inneext"><b>In Neext:</b> even the tiny smoke Pod declares <code>16Mi</code> requested and <code>32Mi</code> at most. It's a house rule for every workload.</p>
+          <details><summary>Check yourself: a container exceeds its memory limit. What happens?</summary><p>Kubernetes kills it, called being "OOMKilled" (out of memory), and starts it again. You'll see this in Layer 1 if Java isn't tuned to its limit.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1 (JVM tuning) and L6</span></div>
+        </article>
+        <article class="concept" data-id="context">
+          <span class="term">look up: kubeconfig, kubectl context</span>
+          <h4>kubeconfig and contexts</h4>
+          <p><code>kubectl</code> reads a file called <b>kubeconfig</b> listing the clusters it knows about. Each entry is a <b>context</b>, and one of them is "current". Run a command without naming a context and it goes to whichever is current, which may not be the one you think.</p>
+          <p class="inneext"><b>In Neext:</b> the Makefile always passes <code>--context k3d-neext</code>. Once prod exists, a wrong current context could change prod by accident.</p>
+          <details><summary>Check yourself: why name the context even when there's only one cluster?</summary><p>The habit has to be in place before the second cluster (prod) arrives in Layer 2. Accidents happen the first time you forget.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Critical from L2</span></div>
+        </article>
+        <article class="concept" data-id="make">
+          <span class="term">look up: Makefile, idempotency, smoke test</span>
+          <h4>Makefile, idempotency and smoke tests</h4>
+          <p>The <b>Makefile</b> is the repo's list of shortcuts: <code>make</code> shows them all. A command is <b>idempotent</b> if running it twice is as safe as running it once. A <b>smoke test</b> is a quick end-to-end check that the basics work, named after powering on new hardware and checking nothing starts smoking.</p>
+          <p class="inneext"><b>In Neext:</b> <code>make cluster-up</code> is idempotent. <code>make smoke</code> deploys a test page, checks it answers, then removes it.</p>
+          <details><summary>Check yourself: why does idempotency matter for automation?</summary><p>Scripts get re-run after failures and retries. If running something twice could break it, every retry becomes a risk.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Grows each layer</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- M0.4 -->
+    <div class="aisle" id="aisle-4">
+      <div class="aisle-head"><span class="aisle-no">M0.4</span><h3>Continuous integration</h3><span class="eyebrow">4 concepts</span></div>
+      <div class="cards">
+        <article class="concept" data-id="ci">
+          <span class="term">look up: continuous integration, GitHub Actions, required status checks</span>
+          <h4>CI and GitHub Actions</h4>
+          <p><b>Continuous integration</b> means every change is checked automatically before it lands. <b>GitHub Actions</b> runs <i>workflows</i>. A workflow has <i>jobs</i>, a job has <i>steps</i>, and each job runs on a fresh machine called a <i>runner</i>. A <b>required check</b> must pass before GitHub allows the merge.</p>
+          <p class="inneext"><b>In Neext:</b> <code>.github/workflows/ci.yml</code> has one job, <code>lint</code>, on a free arm64 runner, taking about 8 seconds. It runs <code>make lint</code>, the same command you run locally.</p>
+          <details><summary>Check yourself: why does CI run <code>make lint</code> rather than its own commands?</summary><p>So a green result on your Mac means a green result in CI. One definition of "passing", and no drift between the two.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Grows in L1: tests and image builds</span></div>
+        </article>
+        <article class="concept" data-id="yaml">
+          <span class="term">look up: YAML, linter, JSON Schema, kubeconform</span>
+          <h4>YAML: format vs meaning</h4>
+          <p><b>YAML</b> is the text format for almost all our config: <code>key: value</code> pairs, indentation for nesting, and <code>-</code> for list items. A <b>linter</b> (yamllint) checks the format. A <b>schema</b> check (kubeconform) checks the meaning: is this a real Kubernetes object, with real field names?</p>
+          <p class="inneext"><b>In Neext:</b> <code>replica: 1</code> is perfectly good YAML, but kubeconform rejected it, because the field is <code>replicas</code>. That was the M0.4 demo.</p>
+          <details><summary>Check yourself: what's the "Norway problem"?</summary><p>Some YAML readers treat a bare <code>no</code> as false. A list of country codes containing <code>NO</code> then silently turns Norway into "false". Our lint rules only allow <code>true</code> and <code>false</code> as booleans.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Every layer: Helm, Argo CD and more</span></div>
+        </article>
+        <article class="concept" data-id="supply">
+          <span class="term">look up: software supply chain, SHA pinning, least privilege</span>
+          <h4>Supply-chain hygiene</h4>
+          <p>Your build trusts code written by other people. <b>Pinning by SHA</b> fixes each GitHub Action to an exact commit, which can't be swapped, rather than a tag like <code>v7</code>, which can be moved. <b>Checksums</b> prove a download wasn't tampered with. <b>Least privilege</b> means giving the workflow only the permissions it needs.</p>
+          <p class="inneext"><b>In Neext:</b> <code>actions/checkout@3d3c42e…</code>, a <code>sha256sum --check</code> on the kubeconform download, and <code>permissions: contents: read</code>.</p>
+          <details><summary>Check yourself: why is a tag riskier than a SHA?</summary><p>Whoever controls the action can point the tag at different code later, as happened in the 2025 <i>tj-actions</i> compromise. A SHA always means exactly the same code.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L1: our own images</span></div>
+        </article>
+        <article class="concept" data-id="revert">
+          <span class="term">look up: git revert vs git reset, Dependabot</span>
+          <h4>Undoing safely, and Dependabot</h4>
+          <p><code>git revert</code> undoes a commit by <i>adding</i> a new commit that reverses it, so history stays intact. <code>git reset</code> <i>rewrites</i> history, and on a branch others have already seen, that needs a force-push. <b>Dependabot</b> opens PRs when the things we depend on release updates.</p>
+          <p class="inneext"><b>In Neext:</b> the broken <code>replica</code> commit was reverted, not erased. Dependabot will open a weekly <code>ci:</code> PR for Actions updates.</p>
+          <details><summary>Check yourself: when <i>is</i> <code>reset</code> fine?</summary><p>On commits nobody else has seen yet, like the stray empty test commit on your local <code>main</code>, which we removed with <code>git reset --keep</code>.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Used whenever we undo</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- M0.5 -->
+    <div class="aisle" id="aisle-5">
+      <div class="aisle-head"><span class="aisle-no">M0.5</span><h3>Vulnerability management</h3><span class="eyebrow">4 concepts</span></div>
+      <div class="cards">
+        <article class="concept" data-id="cve">
+          <span class="term">look up: CVE, CVSS, software composition analysis</span>
+          <h4>CVEs and what the counts mean</h4>
+          <p>A <b>CVE</b> is a publicly catalogued security flaw, scored for severity (<b>CVSS</b>: low to critical). Scanners list the libraries inside an image, a technique called <b>software composition analysis</b>, and match their versions against known CVEs. They see <i>which version</i> is present, not whether the program ever uses the faulty part.</p>
+          <p class="inneext"><b>In Neext:</b> Docker Scout showed 66 criticals. Nearly all traced to four Go libraries compiled into tools other people build.</p>
+          <details><summary>Check yourself: is an image with 34 criticals four times as risky as one with 8?</summary><p>Not necessarily. It depends on whether the flawed code can be reached, and by whom. A count tells you where to look, not how much danger you're in.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Every layer kickoff: <code>make scan</code></span></div>
+        </article>
+        <article class="concept" data-id="exposure">
+          <span class="term">look up: attack surface, 127.0.0.1 vs 0.0.0.0</span>
+          <h4>Exposure: who can reach it?</h4>
+          <p>A program listening on <b>127.0.0.1</b> (localhost) only accepts connections from the same machine. On <b>0.0.0.0</b> it accepts them from <i>every</i> network your machine is on. Shrinking what outsiders can reach is <b>attack surface reduction</b>.</p>
+          <p class="inneext"><b>In Neext:</b> port 8080 was open to the whole Wi-Fi, in front of the most vulnerable image. A one-word fix took it off the network. Now every port binds to <code>127.0.0.1</code>.</p>
+          <details><summary>Check yourself: why did that fix matter more than the upgrades?</summary><p>A flaw nobody can reach can't be exploited. Cutting off access protected against <i>all</i> of k3d-proxy's CVEs at once, including ones that don't have a fix yet.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Again in L2 (Tailscale) and L3 (going public)</span></div>
+        </article>
+        <article class="concept" data-id="semver">
+          <span class="term">look up: semantic versioning</span>
+          <h4>Patch, minor, major</h4>
+          <p><b>Semantic versioning</b> reads <code>MAJOR.MINOR.PATCH</code>. A <b>patch</b> bump (1.35.5 → 1.35.9) is fixes only. A <b>minor</b> bump (1.35 → 1.37) adds features. A <b>major</b> bump (registry 2 → 3) may break things. Patches are safe to take promptly; minors and majors need care.</p>
+          <p class="inneext"><b>In Neext:</b> we took the k3s patch release straight away, and tested the registry's major upgrade with a real image push before trusting it.</p>
+          <details><summary>Check yourself: why not jump k3s straight to 1.37?</summary><p>A minor jump changes features and APIs, and prod has to match dev. That's a deliberate decision for both environments, not a quick security fix.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Every upgrade</span></div>
+        </article>
+        <article class="concept" data-id="register">
+          <span class="term">look up: risk acceptance, vulnerability register</span>
+          <h4>Accepting risk, on the record</h4>
+          <p>Some flaws can't be fixed yet, because the fix has to come from the people who build the software. <b>Risk acceptance</b> means deciding to live with one for now, writing down why, and saying when you'll look again. Ours also had a <b>blind spot</b>: images running inside k3s never appear in Docker Desktop.</p>
+          <p class="inneext"><b>In Neext:</b> <code>docs/vulnerabilities.md</code> lists each accepted CVE and its "re-check when" trigger. <code>make scan</code> covers both image stores. Decision 019 sets the policy.</p>
+          <details><summary>Check yourself: why didn't Traefik's CVEs show in Docker Desktop?</summary><p>Traefik's image lives in k3s's own image store, inside the node containers, not in Docker's. Docker Desktop only lists Docker's store.</p></details>
+          <div class="card-foot"><button type="button" class="bag-btn" aria-pressed="false">Got it</button><span class="later">Every layer kickoff</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Incident log -->
+  <section class="sec" aria-labelledby="rec-h">
+    <div class="sec-head">
+      <span class="eyebrow">Incident log</span>
+      <h2 id="rec-h">Things that actually went wrong</h2>
+      <p class="lede">Real problems from building Layer 0. Each one taught something the plan didn't.</p>
+    </div>
+    <div class="receipts">
+      <div class="receipt"><div class="rhead"><b>The push that merged a PR</b><span>M0.1 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span>A push to main meant to be rejected was accepted, and PR #5 showed as merged.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>The pushed commit was the head of an open, mergeable PR, so GitHub counted it as merging that PR.</span></div>
+        <div class="row"><span class="k">FIX</span><span>Re-ran the demo with an empty commit no PR contained. It was rejected.</span></div>
+        <div class="total">LESSON: "PRs only" means nothing reaches main unless a PR has already approved it.</div></div>
+      <div class="receipt"><div class="rhead"><b>Java 27 in disguise</b><span>M0.2 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span><code>mvn -v</code> reported Java 27 when we'd installed 25.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>Maven brought in Homebrew's own JDK, and used it while <code>JAVA_HOME</code> was unset.</span></div>
+        <div class="row"><span class="k">FIX</span><span><code>JAVA_HOME</code> pinned to 25 in <code>~/.zshrc</code>.</span></div>
+        <div class="total">LESSON: what you install isn't the same as what you get. Watch for transitive dependencies.</div></div>
+      <div class="receipt"><div class="rhead"><b>AirPlay owns port 5000</b><span>M0.3 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span>The tutorial port for a local registry was already taken.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>macOS ControlCenter's AirPlay Receiver listens on 5000.</span></div>
+        <div class="row"><span class="k">FIX</span><span>Registry moved to 5005, found by checking ports before choosing.</span></div>
+        <div class="total">LESSON: check what's listening before you pick a port.</div></div>
+      <div class="receipt"><div class="rhead"><b>Front door open to the Wi-Fi</b><span>M0.5 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span>Port 8080 was bound to 0.0.0.0, every network interface.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>The cluster config bound the API and registry to localhost, but not this port.</span></div>
+        <div class="row"><span class="k">FIX</span><span><code>127.0.0.1:8080:80</code>, verified unreachable from the Mac's network address.</span></div>
+        <div class="total">LESSON: exposure beats CVE counts. Check what's reachable first.</div></div>
+      <div class="receipt"><div class="rhead"><b>The scan that hid its failures</b><span>M0.5 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span><code>make scan</code> printed a blank result for one image.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>A pipeline's exit status is its <i>last</i> command's (<code>head</code>), so the failure was masked.</span></div>
+        <div class="row"><span class="k">FIX</span><span>Capture the result and print "? scan failed" when it's empty.</span></div>
+        <div class="total">LESSON: test the failure path, not just the happy path.</div></div>
+      <div class="receipt"><div class="rhead"><b>Traefik isn't ready yet</b><span>M0.3 · 17 OCT</span></div>
+        <div class="row"><span class="k">SYMPTOM</span><span>The cluster showed Ready, but nothing answered on 8080.</span></div>
+        <div class="row"><span class="k">CAUSE</span><span>k3s installs Traefik with a job <i>after</i> startup.</span></div>
+        <div class="row"><span class="k">FIX</span><span>Wait for the install job and the rollout before testing.</span></div>
+        <div class="total">LESSON: "started" isn't the same as "ready". Wait on a condition, not a feeling.</div></div>
+    </div>
+  </section>
+
+  <!-- Operating -->
+  <section class="sec" aria-labelledby="ops-h">
+    <div class="sec-head"><span class="eyebrow">Operations</span><h2 id="ops-h">Running it day to day</h2></div>
+    <div class="ops">
+      <div class="panel">
+        <h3>Start and stop</h3>
+        <ol class="steps">
+          <li>Open <b>Docker Desktop</b> and wait until it's running.</li>
+          <li><span class="cmd"><code>make cluster-up</code><button type="button" class="copy" data-copy="make cluster-up">copy</button></span> confirms or creates the cluster.</li>
+          <li><span class="cmd"><code>make smoke</code><button type="button" class="copy" data-copy="make smoke">copy</button></span> checks the whole path.</li>
+        </ol>
+        <p style="font-size:14.5px">When you.re done, you can <b>leave it running</b> (about 1.1 GB), <b>quit Docker Desktop</b> (the cluster pauses and comes back next time), or run <code>make cluster-down</code> (deletes it; rebuilt in under a minute).</p>
+      </div>
+      <div class="panel">
+        <h3>Health check</h3>
+        <table class="cmd-table">
+          <tr><td><code>make cluster-status</code></td><td><span class="chip ok">Healthy</span> 3 nodes Ready, "No resources found"</td></tr>
+          <tr><td><code>make smoke</code></td><td><span class="chip ok">Healthy</span> ✔ smoke passed</td></tr>
+          <tr><td><code>kubectl top nodes</code></td><td><span class="chip ok">Healthy</span> control plane about 700 MiB, workers 100–200 MiB</td></tr>
+          <tr><td><code>docker port k3d-neext-serverlb</code></td><td><span class="chip ok">Healthy</span> 127.0.0.1 only. <span class="chip bad">Problem</span> if you see 0.0.0.0</td></tr>
+          <tr><td><code>make lint</code></td><td><span class="chip ok">Healthy</span> Valid: 5, Invalid: 0</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Command reference</h3>
+        <table class="cmd-table">
+          <tr><td><span class="cmd"><code>make</code><button type="button" class="copy" data-copy="make">copy</button></span></td><td>List every shortcut</td></tr>
+          <tr><td><span class="cmd"><code>make lint</code><button type="button" class="copy" data-copy="make lint">copy</button></span></td><td>Check files before pushing</td></tr>
+          <tr><td><span class="cmd"><code>make scan</code><button type="button" class="copy" data-copy="make scan">copy</button></span></td><td>CVE counts, about 10 min</td></tr>
+          <tr><td><span class="cmd"><code>kubectl top pods -A</code><button type="button" class="copy" data-copy="kubectl --context k3d-neext top pods -A">copy</button></span></td><td>Memory per pod</td></tr>
+          <tr><td><span class="cmd"><code>brew bundle</code><button type="button" class="copy" data-copy="brew bundle">copy</button></span></td><td>Install or update tools</td></tr>
+          <tr><td><span class="cmd"><code>git switch main &amp;&amp; git pull</code><button type="button" class="copy" data-copy="git switch main &amp;&amp; git pull">copy</button></span></td><td>Sync after a merge</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section class="sec" aria-labelledby="tr-h">
+    <div class="sec-head"><span class="eyebrow">Troubleshooting</span><h2 id="tr-h">When something's not right</h2></div>
+    <div class="tscroll">
+      <table class="trouble">
+        <thead><tr><th>YOU SEE</th><th>BECAUSE</th><th>DO THIS</th></tr></thead>
+        <tbody>
+          <tr><td><code>Cannot connect to the Docker daemon</code></td><td>Docker Desktop isn't running</td><td>Open it and wait for it to start</td></tr>
+          <tr><td><code>mvn -v</code> shows Java 27</td><td><code>JAVA_HOME</code> isn't set in this terminal</td><td>Open a new terminal, or <code>source ~/.zshrc</code></td></tr>
+          <tr><td><code>make smoke</code> fails just after <code>cluster-up</code></td><td>Traefik is still installing</td><td>Wait a minute. <code>kubectl --context k3d-neext -n kube-system get pods</code> shows progress</td></tr>
+          <tr><td>Merge button greyed out</td><td>The required <code>lint</code> check failed or is still running</td><td>Open <b>Details</b>, fix the problem, push again</td></tr>
+          <tr><td><code>git branch -d</code>: "not fully merged"</td><td>Squash merging made a new commit</td><td>Check <code>git diff --quiet branch main</code>, then <code>git branch -D branch</code></td></tr>
+          <tr><td>A push to main was <i>accepted</i></td><td>It was an open PR's own commit, which counts as a merge</td><td>Expected. Unapproved commits are rejected</td></tr>
+          <tr><td><code>? scan failed, try again</code></td><td>Docker Scout's online lookup failed</td><td>Run <code>make scan</code> again</td></tr>
+          <tr><td>kubectl shows the wrong cluster</td><td>It's using the current context</td><td>Always pass <code>--context k3d-neext</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Readiness check -->
+  <section class="checkout" id="checkout" aria-labelledby="co-h">
+    <span class="eyebrow">Readiness check</span>
+    <h2 id="co-h">Ready for Layer 1?</h2>
+    <div class="checkout-status">
+      <span class="big-count" id="co-count">0 / 26</span>
+      <span class="chip bad" id="co-chip">26 concepts to go</span>
+    </div>
+    <p class="lede" id="co-note">Mark each concept once you can answer its question without peeking. Anything still unclear, ask about it before we start Layer 1.</p>
+    <div class="missing" id="missing" aria-label="Concepts not yet marked as understood"></div>
+    <p style="font-size:15px"><b>Layer 1 leans hardest on:</b> images and containers, Pods and Deployments, Services and Traefik, namespaces, health checks and limits, Java and <code>JAVA_HOME</code>, and CI. Layer 1 adds the first application code: the Next.js site, the catalog service and PostgreSQL.</p>
+  </section>
+
+  <p class="foot">Neext field guide · Layer 0 · October 2026. The source lives in the repo at <code>docs/field-guide/layer-0.html</code>. Neext is a parody learning project, not affiliated with Next plc.</p>
+</div>
+
+<script>
+(function () {
+  var KEY = "neext-field-guide-l0";
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".concept"));
+  var total = cards.length;
+  var bag = {};
+  try { bag = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { bag = {}; }
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(bag)); } catch (e) {} }
+
+  function render() {
+    var n = 0;
+    var missing = document.getElementById("missing");
+    missing.innerHTML = "";
+    cards.forEach(function (c) {
+      var id = c.getAttribute("data-id");
+      var inBag = !!bag[id];
+      if (inBag) n++;
+      c.classList.toggle("in-bag", inBag);
+      var b = c.querySelector(".bag-btn");
+      b.setAttribute("aria-pressed", String(inBag));
+      b.textContent = inBag ? "Understood ✓" : "Got it";
+      if (!inBag) {
+        if (!c.id) c.id = "c-" + id;
+        var a = document.createElement("a");
+        a.href = "#" + c.id;
+        a.textContent = c.querySelector("h4").textContent;
+        missing.appendChild(a);
+      }
+    });
+    document.getElementById("bag-count").textContent = "Understood: " + n + " / " + total;
+    document.getElementById("meter").style.width = (n / total * 100) + "%";
+    document.getElementById("co-count").textContent = n + " / " + total;
+    var chip = document.getElementById("co-chip");
+    var note = document.getElementById("co-note");
+    if (n === total) {
+      chip.className = "chip ok"; chip.textContent = "Ready for Layer 1";
+      note.textContent = "All 26 concepts understood. Tell Claude you are ready, and we will kick off Layer 1.";
+    } else {
+      chip.className = n >= total / 2 ? "chip warn" : "chip bad";
+      chip.textContent = (total - n) + " to go";
+      note.textContent = "Mark each concept once you can answer its question without peeking. Anything still unclear, ask about it before we start Layer 1.";
+    }
+  }
+
+  cards.forEach(function (c) {
+    c.querySelector(".bag-btn").addEventListener("click", function () {
+      var id = c.getAttribute("data-id");
+      if (bag[id]) delete bag[id]; else bag[id] = true;
+      save(); render();
+    });
+  });
+
+  document.querySelectorAll(".copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy");
+      function done(ok) { btn.textContent = ok ? "copied" : "select it"; setTimeout(function () { btn.textContent = "copy"; }, 1400); }
+      try {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } catch (e) { done(false); }
+    });
+  });
+
+  render();
+})();
+</script>

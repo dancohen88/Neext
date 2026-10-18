@@ -17,6 +17,16 @@ Neext is a learning and deep-dive project: a parody online shop (a play on the U
 - The PR description follows `.github/pull_request_template.md`. It's the learning write-up, and it starts with `Closes #<issue>`.
 - PRs are squash-merged, so the PR title becomes the commit on `main`. Titles are Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:` …).
 - Each layer gets a journal page in `docs/learning/`, updated by each milestone's PR.
+- **Each layer closes with a field guide**, `docs/field-guide/layer-N.html`, built on `layer-0.html` as the template. The user works through it before the next layer starts.
+  - It's an interactive page in the Neext design language (blueprint tokens and fonts).
+  - It contains:
+    - architecture diagrams of what the layer built
+    - every concept from the layer's journal, as a card covering what it is, how it works and where it lives in Neext, with a "check yourself" question and a "Got it" toggle
+    - an incident log of what actually went wrong
+    - operations, a command reference and troubleshooting
+    - a readiness check
+  - **No shop analogies or store-themed labels.** Give the technical content directly, in an engaging style.
+  - Publish it as an Artifact for reading, with the repo file as the master copy.
 
 ## Constraints that shape every change
 

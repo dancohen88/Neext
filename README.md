@@ -38,6 +38,7 @@ You'll need macOS on Apple Silicon with [Homebrew](https://brew.sh) installed.
 | [Decisions](docs/DECISIONS.md) | Architecture decision log, with the reasoning behind each choice |
 | [Blueprint](docs/blueprint.html) | Interactive architecture diagrams and the shop's brand kit (download it and open it in a browser) |
 | [Learning journal](docs/learning/) | One page per layer: concepts, with links to the PRs that introduced them |
+| [Field guides](docs/field-guide/) | One interactive page per layer: architecture diagrams, every concept with a self-check question, real incidents, operations and troubleshooting. Download and open in a browser. |
 
 ## How work happens
 
